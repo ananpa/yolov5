@@ -1,0 +1,13 @@
+names:
+- pill
+nc: 1
+path: ../datasets/pill_Detector-1
+roboflow:
+  license: CC BY 4.0
+  project: pill_detector-ztcky
+  url: https://universe.roboflow.com/yeonghun-lee/pill_detector-ztcky/dataset/1
+  version: 1
+  workspace: yeonghun-lee
+test: test/images
+train: train/images
+val: valid/images
