@@ -65,6 +65,7 @@ from utils.torch_utils import (
 
 from utils.activations import GeneralizedSigmoid
 from utils.activations import PELU
+from utils.activations import Smish
 from utils.activations import ReLUSiLU
 from utils.activations import ReLUELU
 
