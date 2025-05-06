@@ -69,11 +69,11 @@ class ReLUELU(nn.Module):
     
 class Smish(nn.Module):
     """Applies the Smish activation function, a smooth approximation of ReLU."""
-    #def __init__(self, inplace=False):
-    #    super().__init__()
-    #    self.inplace = inplace
+    def __init__(self, inplace=False):
+        super().__init__()
+        self.inplace = inplace
 
-    @staticmethod
+    #@staticmethod
     def forward(self, x):
         return x * torch.tanh(torch.log(1 + torch.sigmoid(x)))
     
