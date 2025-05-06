@@ -1,0 +1,14 @@
+names:
+- capsules
+- tablets
+nc: 2
+path: ../datasets/Pills-Detection-19
+roboflow:
+  license: CC BY 4.0
+  project: pills-detection-s9ywn
+  url: https://universe.roboflow.com/seblful/pills-detection-s9ywn/dataset/19
+  version: 19
+  workspace: seblful
+test: test/images
+train: train/images
+val: valid/images
