@@ -63,6 +63,11 @@ from utils.torch_utils import (
     time_sync,
 )
 
+from utils.activations import GeneralizedSigmoid
+from utils.activations import PELU
+from utils.activations import ReLUSiLU
+from utils.activations import ReLUELU
+
 try:
     import thop  # for FLOPs computation
 except ImportError:

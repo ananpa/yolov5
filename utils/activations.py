@@ -5,7 +5,78 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+class GeneralizedSigmoid(nn.Module):
+    """
+    output = 1 / [1 + exp(-alpha * (x - beta))]
+    where alpha, beta are learnable parameters.
+    """
+    def __init__(self, alpha_init=1.0, beta_init=0.0):
+        super().__init__()
+        # Make alpha, beta trainable (learnable) parameters
+        self.alpha = nn.Parameter(torch.tensor(alpha_init, dtype=torch.float32))
+        self.beta = nn.Parameter(torch.tensor(beta_init, dtype=torch.float32))
 
+    def forward(self, x):
+        return 1.0 / (1.0 + torch.exp(-self.alpha * (x - self.beta)))
+
+class PELU(nn.Module):
+    def __init__(self, a_init=1.0, b_init=1.0):
+        super().__init__()
+        #Learnable parameters:
+        self.a = nn.Parameter(torch.tensor(a_init, dtype=torch.float))
+        self.b = nn.Parameter(torch.tensor(b_init, dtype=torch.float))
+
+    def forward(self, x):
+        # PELU is piecewise-defined, so we mask x >= 0 vs x < 0
+        pos_mask = x >= 0
+        neg_mask = ~pos_mask
+
+        x_pos = x[pos_mask]
+        x_neg = x[neg_mask]
+
+        # PELU piecewise
+        # for x >= 0:  (a/b) * x
+        # for x < 0:   a * (exp(x/b) - 1)
+        y_pos = (self.a / self.b) * x_pos
+        y_neg = self.a * (torch.exp(x_neg / self.b) - 1)
+
+        # Recombine
+        out = torch.zeros_like(x)
+        out[pos_mask] = y_pos
+        out[neg_mask] = y_neg
+        return out
+
+# Hybrid Activation Unit (ReLU + SiLU)
+class ReLUSiLU(nn.Module):
+    def __init__(self, init_alpha=0.5):
+        super(ReLUSiLU, self).__init__()
+        # Alpha parameter balances the two activations
+        self.alpha = nn.Parameter(torch.tensor(init_alpha))
+
+    def forward(self, x):
+        relu_out = F.relu(x)
+        silu_out = F.silu(x)  # Swish activation
+        # Combine activations adaptively
+        return self.alpha * relu_out + (1 - self.alpha) * silu_out
+
+class ReLUELU(nn.Module):
+    def __init__(self, alpha_init=1.0):
+        super(ReLUELU, self).__init__()
+        self.alpha = nn.Parameter(torch.tensor(alpha_init))  # Trainable alpha parameter
+
+    def forward(self, x):
+        return torch.where(x > 0, self.alpha * x, self.alpha * (torch.exp(x) - 1))
+    
+class Smish(nn.Module):
+    """Applies the Smish activation function, a smooth approximation of ReLU."""
+    #def __init__(self, inplace=False):
+    #    super().__init__()
+    #    self.inplace = inplace
+
+    @staticmethod
+    def forward(self, x):
+        return x * torch.tanh(torch.log(1 + torch.sigmoid(x)))
+    
 class SiLU(nn.Module):
     """Applies the Sigmoid-weighted Linear Unit (SiLU) activation function, also known as Swish."""
 
