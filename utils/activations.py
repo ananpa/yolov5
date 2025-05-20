@@ -5,6 +5,21 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+class GSigmoidV1(nn.Module):
+    """
+    output = 1 / [1 + exp(-alpha * (x - beta))]
+    """
+    def __init__(self, alpha_init=1.0, beta_init=0.0):
+        super().__init__()
+        self.alpha = alpha_init
+        self.beta = beta_init
+
+    def forward(self, x):
+        return 1.0 / (1.0 + torch.exp(-self.alpha * (x - self.beta)))
+    
+    def __repr__(self):
+        return f'GSigmoidV1(alpha={self.alpha}, beta={self.beta})'
+    
 class GeneralizedSigmoid(nn.Module):
     """
     output = 1 / [1 + exp(-alpha * (x - beta))]
@@ -19,6 +34,9 @@ class GeneralizedSigmoid(nn.Module):
     def forward(self, x):
         return 1.0 / (1.0 + torch.exp(-self.alpha * (x - self.beta)))
 
+    def __repr__(self):
+        return f'GeneralizedSigmoid(a={self.alpha}, b={self.beta})'
+        
 class PELU(nn.Module):
     def __init__(self, a_init=1.0, b_init=1.0):
         super().__init__()

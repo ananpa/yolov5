@@ -63,6 +63,7 @@ from utils.torch_utils import (
     time_sync,
 )
 
+from utils.activations import GSigmoidV1
 from utils.activations import GeneralizedSigmoid
 from utils.activations import PELU
 from utils.activations import Smish
