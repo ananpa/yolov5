@@ -1,6 +1,6 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
-activation: PELU(a_init=1.0, b_init=1.0)   # <- Conv() default
+activation: PELU()   # <- Conv() default
 
 # Parameters
 nc: 80 # number of classes

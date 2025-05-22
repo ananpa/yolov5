@@ -4,6 +4,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import math
 
 class GSigmoidV1(nn.Module):
     """
@@ -38,30 +39,19 @@ class GeneralizedSigmoid(nn.Module):
         return f'GeneralizedSigmoid(a={self.alpha}, b={self.beta})'
         
 class PELU(nn.Module):
-    def __init__(self, a_init=1.0, b_init=1.0):
+    """Parametric Exponential Linear Unit (PELU) activation function."""
+    def __init__(self, a=None, b=None):
         super().__init__()
-        #Learnable parameters:
-        self.a = nn.Parameter(torch.tensor(a_init, dtype=torch.float))
-        self.b = nn.Parameter(torch.tensor(b_init, dtype=torch.float))
+        default_val = math.sqrt(0.1)
+        a =  default_val if a is None else a 
+        b = default_val  if b is None else b
+        self.a = nn.Parameter(torch.tensor(a), requires_grad=True)
+        self.b = nn.Parameter(torch.tensor(b), requires_grad=True)
 
     def forward(self, x):
-        # PELU is piecewise-defined, so we mask x >= 0 vs x < 0
-        pos_mask = x >= 0
-        neg_mask = ~pos_mask
-
-        x_pos = x[pos_mask]
-        x_neg = x[neg_mask]
-
-        # PELU piecewise
-        # for x >= 0:  (a/b) * x
-        # for x < 0:   a * (exp(x/b) - 1)
-        y_pos = (self.a / self.b) * x_pos
-        y_neg = self.a * (torch.exp(x_neg / self.b) - 1)
-
-        # Recombine
-        out = torch.zeros_like(x)
-        out[pos_mask] = y_pos
-        out[neg_mask] = y_neg
+        a = torch.abs(self.a)
+        b = torch.abs(self.b) 
+        out = torch.where(x >= 0, a/b * x, a * (torch.exp(x / b) - 1))
         return out
 
 # Hybrid Activation Unit (ReLU + SiLU)
